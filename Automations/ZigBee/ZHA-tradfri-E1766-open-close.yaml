@@ -1,5 +1,6 @@
 blueprint:
-  name: Own Blueprint - ZHA - TRADFRI open/close remote
+  name: ZHA - TRADFRI E1766 open/close remote
+  author: marc825
   domain: automation
   input:
     remote:
