@@ -1,5 +1,6 @@
 blueprint:
-  name: Eigener Blueprint - ZHA - Debug Commands
+  name: ZHA - Debug Device Commands
+  author: marc825
   domain: automation
   input:
     zha_device:
