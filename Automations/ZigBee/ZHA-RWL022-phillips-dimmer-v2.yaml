@@ -1,5 +1,6 @@
 blueprint:
-  name: Own Blueprint - ZHA - Phillips Dimmer V2 Light Control
+  name: ZHA - Phillips Dimmer V2 Generic Control
+  author: marc825
   description: '
 
     '
