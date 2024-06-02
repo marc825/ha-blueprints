@@ -1,0 +1,107 @@
+blueprint:
+  name: Own Blueprint - ZHA - Phillips Dimmer V2 Light Control
+  description: '
+
+    '
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: The remote that will control the shades
+      selector:
+        device:
+          integration: zha
+          manufacturer: Signify Netherlands B.V.
+          model: RWL022
+          multiple: false
+    power_button_short_press:
+      name: Power Button Short press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    power_button_long_press:
+      name: Power Button Long press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    dim_up_short_press:
+      name: Dim Up Short press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    dim_down_short_press:
+      name: Dim Down Short press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    short_press:
+      name: Short-Press 
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    long_press:
+      name: Long-Press 
+      description: Action to run on Long Press
+      default: []
+      selector:
+        action: {}
+  source_url: https://community.home-assistant.io/t/deconz-ikea-tradfri-open-close-in
+mode: restart
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input "remote"
+    command: on_press
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input "remote"
+    command: on_hold
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input "remote"
+    command: off_press
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input "remote"
+    command: off_hold
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input "remote"
+    command: up_press
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input "remote"
+    command: down_press
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+- choose:
+  - conditions:
+    - "{{ command == 'on_press' }}"
+    sequence: !input "power_button_short_press"
+  - conditions:
+    - "{{ command == 'on_hold' }}"
+    sequence: !input "power_button_long_press"
+  - conditions:
+    - "{{ command == 'up_press' }}"
+    sequence: !input "dim_up_short_press"
+  - conditions:
+    - "{{ command == 'down_press' }}"
+    sequence: !input "dim_down_short_press"
+  - conditions:
+    - "{{ command == 'off_press' }}"
+    sequence: !input "short_press"
+  - conditions:
+    - "{{ command == 'off_hold' }}"
+    sequence: !input "long_press"
