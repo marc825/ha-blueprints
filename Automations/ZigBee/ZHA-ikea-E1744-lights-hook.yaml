@@ -1,0 +1,83 @@
+blueprint:
+  name: Own Blueprint - ZHA - Light IKEA SYMFONISK remote Hook
+  description: 'Control anything using IKEA SYMFONISK remote
+
+    '
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: IKEA remote to use
+      selector:
+        device:
+          integration: zha
+          manufacturer: IKEA of Sweden
+          model: SYMFONISK Sound Controller
+          multiple: false
+    debounce_delay:
+      name: (Optional) Helper - Debounce delay
+      description: Delay used for debouncing RAW controller events, by default set
+        to 0. A value of 0 disables the debouncing feature. Increase this value if
+        you notice custom actions or linked Hooks running multiple times when interacting
+        with the device. When the controller needs to be debounced, usually a value
+        of 100 is enough to remove all duplicate events.
+      default: 0
+      selector:
+        number:
+          min: 0.0
+          max: 1000.0
+          unit_of_measurement: milliseconds
+          mode: box
+          step: 10.0
+variables:
+  button_single_press:
+  - 'toggle'
+  dim_up_short_press:
+  - '[<StepMode.Up: 0>, 1, 0, <bitmap8: 0>, <bitmap8: 0>]'
+  button_double_press:
+  - '[<StepMode.Up: 0>, 1, 0, <bitmap8: 0>, <bitmap8: 0>]'
+  button_triple_press:
+  - '[<StepMode.Down: 1>, 1, 0, <bitmap8: 0>, <bitmap8: 0>]'
+mode: single
+max_exceeded: silent
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input remote
+    command: stop
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input remote
+    command: move
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+    trigger_action: "{{ trigger.event.data.args }}"
+- choose:
+  - conditions:
+    - "{{ command == 'stop' }}"
+    sequence:
+    - event: ahb_controller_event
+      event_data:
+        controller: !input remote
+        action: stop
+    - service: homeassistant.turn_on
+      data: {}
+      target:
+        entity_id: input_boolean.badeecke_schrank_speicher
+  - conditions: "{{ trigger_action == '[<MoveMode.Up: 0>, 195, <bitmap8: 0>, <bitmap8: 0>]' }}"
+    sequence:
+    - event: ahb_controller_event
+      event_data:
+        controller: !input remote
+        action: rotate_clockwise
+  - conditions: "{{ trigger_action == '[<MoveMode.Down: 1>, 195, <bitmap8: 0>, <bitmap8: 0>]' }}"
+    sequence:
+    - event: ahb_controller_event
+      event_data:
+        controller: !input remote
+        action: rotate_anticlockwise
+# - delay:
+    # milliseconds: !input debounce_delay
