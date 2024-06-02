@@ -1,0 +1,190 @@
+blueprint:
+  name: Own Blueprint - ZHA - Light IKEA SYMFONISK remote
+  description: 'Control anything using IKEA SYMFONISK remote
+
+    '
+  domain: automation
+  input:
+    input_remote:
+      name: Remote
+      description: IKEA remote to use
+      selector:
+        device:
+          integration: zha
+          manufacturer: IKEA of Sweden
+          model: SYMFONISK Sound Controller
+          multiple: false
+    input_button_single_press:
+      name: Controller Single Press
+      description: Action to run on controller single press
+      default: []
+      selector:
+        action: {}
+    input_button_double_press:
+      name: Controller Double Press
+      description: Action to run on controller double press
+      default: []
+      selector:
+        action: {}
+    input_button_triple_press:
+      name: Controller Triple Press
+      description: Action to run on controller triple press
+      default: []
+      selector:
+        action: {}
+    input_rotate_clockwise:
+      name: Rotation Clockwise
+      description: Action to run when rotation clockwise started
+      default: []
+      selector:
+        action: {}
+    input_rotate_clockwise_loop_bool:
+      name: (Optional) Clockwise - loop until stop
+      description: Loop the rotate right action until the rotation is stopped.
+      default: false
+      selector:
+        boolean: {}
+    input_rotate_anticlockwise:
+      name: Rotation Anti-Clockwise
+      description: Action to run when rotation anti-clockwise started
+      default: []
+      selector:
+        action: {}
+    input_rotate_anticlockwise_loop_bool:
+      name: (Optional) Anti-Clockwise - loop until stop
+      description: Loop the rotate left action until the rotation is stopped.
+      default: false
+      selector:
+        boolean: {}
+    input_rotate_loop_stop:
+      name: Boolean for Loop
+      default: []
+      selector:
+        entity:
+          multiple: false
+          filter:
+            - domain: input_boolean
+variables:
+  rotate_clockwise_loop: !input input_rotate_clockwise_loop_bool
+  rotate_anticlockwise_loop: !input input_rotate_anticlockwise_loop_bool
+  button_single_press:
+  - 'toggle'
+  dim_up_short_press:
+  - '[<StepMode.Up: 0>, 1, 0, <bitmap8: 0>, <bitmap8: 0>]'
+  button_double_press:
+  - '[<StepMode.Up: 0>, 1, 0, <bitmap8: 0>, <bitmap8: 0>]'
+  button_triple_press:
+  - '[<StepMode.Down: 1>, 1, 0, <bitmap8: 0>, <bitmap8: 0>]'
+  rotate_clockwise:
+  - '[<MoveMode.Up: 0>, 195, <bitmap8: 0>, <bitmap8: 0>]'
+  rotate_anticlockwise:
+  - '[<MoveMode.Down: 1>, 195, <bitmap8: 0>, <bitmap8: 0>]'
+mode: single
+max_exceeded: silent
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input input_remote
+    command: move
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input input_remote
+    command: toggle
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input input_remote
+    command: step
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+    trigger_action: "{{ trigger.event.data.args }}"
+    action: '{{ trigger.event.data.action }}'
+- choose:
+  - conditions:
+    - "{{ command | string in button_single_press }}"
+    sequence:
+    - choose:
+      - conditions: []
+        sequence: !input input_button_single_press
+  - conditions: 
+#    - "{{ command == 'step' }}"
+    - "{{ trigger_action | string in button_double_press }}"
+    sequence: 
+    - choose:
+      - conditions: []
+        sequence: !input input_button_double_press
+  - conditions: 
+#    - "{{ command == 'step' }}"
+    - "{{ trigger_action | string in button_triple_press }}"
+    sequence: 
+    - choose:
+      - conditions: []
+        sequence: !input input_button_triple_press
+  - conditions: "{{ trigger_action | string in rotate_clockwise }}"
+    sequence:
+    - choose:
+      - conditions: "{{ rotate_clockwise_loop }}"
+        sequence:
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_rotate_loop_stop
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 0
+            milliseconds: 150
+        - repeat:
+            sequence:
+            - choose:
+              - conditions: []
+                sequence: !input input_rotate_clockwise
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 100
+            until:
+              - condition: state
+                entity_id: !input input_rotate_loop_stop
+                state: "on"
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_rotate_loop_stop
+          data: {}
+
+  - conditions: "{{ trigger_action | string in rotate_anticlockwise }}"
+    sequence:
+    - choose:
+      - conditions: "{{ rotate_anticlockwise_loop }}"
+        sequence:
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_rotate_loop_stop
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 0
+            milliseconds: 150
+        - repeat:
+            sequence:
+            - choose:
+              - conditions: []
+                sequence: !input input_rotate_anticlockwise
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 100
+            until:
+              - condition: state
+                entity_id: !input input_rotate_loop_stop
+                state: "on"
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_rotate_loop_stop
+          data: {}
