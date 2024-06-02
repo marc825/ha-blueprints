@@ -1,0 +1,49 @@
+blueprint:
+  name: Eigener Blueprint - ZHA - Debug Commands
+  domain: automation
+  input:
+    zha_device:
+      name: ZHA Device
+      description: The Remote that creates Events
+      selector:
+        device:
+          integration: zha
+          multiple: false
+    text_helper_command:
+      name: Command Output Text Helper
+      description: Output for Command events of Device
+      default: []
+      selector:
+        entity:
+          domain:
+          - input_text
+          multiple: false
+    text_helper_trigger_action:
+      name: Trigger Output Text Helper
+      description: Output for Trigger events of Device
+      default: []
+      selector:
+        entity:
+          domain:
+          - input_text
+          multiple: false
+mode: restart
+max_exceeded: silent
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input 'zha_device'
+action:
+- variables:
+    trigger_command: "{{ trigger.event.data.command }}"
+    trigger_action: "{{ trigger.event.data.args }}"
+    trigger_params: "{{ trigger.event.data.params }}"
+- service: input_text.set_value
+  data:
+    entity_id: !input text_helper_command
+    value: '{{ trigger_command }}'
+- service: input_text.set_value
+  data:
+    entity_id: !input text_helper_trigger_action
+    value: '{{ trigger_action }}'
