@@ -1,0 +1,41 @@
+blueprint:
+  name: Own Blueprint - ZHA - TRADFRI open/close remote
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: The remote that will control the shades
+      selector:
+        device:
+          integration: zha
+          manufacturer: IKEA of Sweden
+          model: TRADFRI open/close remote
+          multiple: false
+    open_button_short_press:
+      name: Power Button Long press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    close_button_short_press:
+      name: Power Button Short press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+mode: restart
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input "remote"
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+- choose:
+  - conditions:
+    - "{{ command == 'up_open' }}"
+    sequence: !input "open_button_short_press"
+  - conditions:
+    - "{{ command == 'down_close' }}"
+    sequence: !input "close_button_short_press"
