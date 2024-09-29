@@ -14,23 +14,8 @@ blueprint:
           manufacturer: IKEA of Sweden
           model: SYMFONISK Sound Controller
           multiple: false
-#    debounce_delay:
-#      name: (Optional) Helper - Debounce delay
-#      description: Delay used for debouncing RAW controller events, by default set
-#        to 0. A value of 0 disables the debouncing feature. Increase this value if
-#        you notice custom actions or linked Hooks running multiple times when interacting
-#        with the device. When the controller needs to be debounced, usually a value
-#        of 100 is enough to remove all duplicate events.
-#      default: 0
-#      selector:
-#        number:
-#          min: 0.0
-#          max: 1000.0
-#          unit_of_measurement: milliseconds
-#         mode: box
-#          step: 10.0
-    input_speicher:
-      name: Boolean Speicher
+    input_rotate_loop_stop:
+      name: Boolean for Loop
       default: []
       selector:
         entity:
@@ -70,7 +55,7 @@ action:
     - service: homeassistant.turn_on
       data: {}
       target:
-        entity_id: input_boolean.badeecke_schrank_speicher
+        entity_id: !input input_rotate_loop_stop
   - conditions: "{{ trigger_action | string in rotate_clockwise }}"
     sequence:
     - event: ahb_controller_event
@@ -83,5 +68,3 @@ action:
       event_data:
         controller: !input remote
         action: rotate_anticlockwise
-# - delay:
-    # milliseconds: !input debounce_delay
