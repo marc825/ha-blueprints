@@ -1,0 +1,95 @@
+blueprint:
+  name: Own Blueprint GH - Event - Shelly i4
+  description: '
+
+    '
+  domain: automation
+  input:
+    input_remote:
+      name: Esphome Device
+      selector:
+        device:
+          integration: esphome
+    input_action_button_1_single_press:
+      name: Button 1 Single Press
+      default: []
+      selector:
+        action: {}
+    input_action_button_2_single_press:
+      name: Button 2 Single Press
+      default: []
+      selector:
+        action: {}
+    input_action_button_3_single_press:
+      name: Button 3 Single Press
+      default: []
+      selector:
+        action: {}
+    input_action_button_4_single_press:
+      name: Button 4 Single Press
+      default: []
+      selector:
+        action: {}
+mode: single
+max_exceeded: silent
+trigger:
+- platform: event
+  event_type: esphome.button_pressed
+  event_data:
+    device_id: !input input_remote
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+- choose:
+  - conditions:
+    - "{{ command | string in button_single_press }}"
+    sequence:
+    - choose:
+      - conditions: []
+        sequence: !input input_button_single_press
+  - conditions: 
+#    - "{{ command == 'step' }}"
+    - "{{ trigger_action | string in button_double_press }}"
+    sequence: 
+    - choose:
+      - conditions: []
+        sequence: !input input_button_double_press
+  - conditions: 
+#    - "{{ command == 'step' }}"
+    - "{{ trigger_action | string in button_triple_press }}"
+    sequence: 
+    - choose:
+      - conditions: []
+        sequence: !input input_button_triple_press
+  - conditions: "{{ trigger_action | string in rotate_clockwise }}"
+    sequence:
+    - choose:
+      - conditions: "{{ rotate_clockwise_loop }}"
+        sequence:
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_rotate_loop_stop
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 0
+            milliseconds: 150
+        - repeat:
+            sequence:
+            - choose:
+              - conditions: []
+                sequence: !input input_rotate_clockwise
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 100
+            until:
+              - condition: state
+                entity_id: !input input_rotate_loop_stop
+                state: "on"
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_rotate_loop_stop
+          data: {}
