@@ -1,106 +1,94 @@
 blueprint:
-  name: Own Blueprint GH - Event - Shelly i4
-  description: 'Made by Marc Sybrichs'
+  name: "Own Blueprint GH - Event - Shelly i4"
+  description: "Made by Marc Sybrichs"
   domain: automation
   input:
     section_device:
-      name: Esphome Device
-      icon: mdi:devices
+      name: "Esphome Device"
+      icon: "mdi:devices"
       input:
         input_device:
-          name: Esphome Device
+          name: "Esphome Device"
           selector:
             device:
               integration: esphome
     section_bttn_1:
-      name: Button 1
-      icon: mdi:gesture-tap-button
-      description: Options for Button 1
+      name: "Button 1"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for Button 1"
       input:
         input_action_button_1_single_press:
-          name: Button 1 short single Press
+          name: "Button 1 short single Press"
           default: []
           selector:
             action: {}
     section_bttn_2:
-      name: Button 2
-      icon: mdi:gesture-tap-button
-      description: Options for Button 2
+      name: "Button 2"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for Button 2"
       input:
         input_action_button_2_single_press:
-          name: Button 2 short single Press
+          name: "Button 2 short single Press"
           default: []
           selector:
             action: {}
     section_bttn_3:
-      name: Button 3
-      icon: mdi:gesture-tap-button
-      description: Options for Button 3
+      name: "Button 3"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for Button 3"
       input:
         input_action_button_3_single_press:
-          name: Button 3 short single Press
+          name: "Button 3 short single Press"
           default: []
           selector:
             action: {}
     section_bttn_4:
-      name: Button 4
-      icon: mdi:gesture-tap-button
-      description: Options for Button 4
+      name: "Button 4"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for Button 4"
       input:
         input_action_button_4_single_press:
-          name: Button 4 short single Press
+          name: "Button 4 short single Press"
           default: []
           selector:
             action: {}
 variables:
   button_1_short_press: 
-  - 'bttn-1-short-click'
+    - "bttn-1-short-click"
   button_1_long_press: 
-  - 'bttn-1-long-click'
+    - "bttn-1-long-click"
   button_2_short_press:
-  - 'bttn-2-short-click'
+    - "bttn-2-short-click"
   button_2_long_press:
-  - 'bttn-2-long-click'
+    - "bttn-2-long-click"
   button_3_short_press:
-  - 'bttn-3-short-click'
+    - "bttn-3-short-click"
   button_3_long_press:
-  - 'bttn-3-long-click'
+    - "bttn-3-long-click"
   button_4_short_press:
-  - 'bttn-4-short-click'
+    - "bttn-4-short-click"
   button_4_long_press:
-  - 'bttn-4-long-click'
+    - "bttn-4-long-click"
 mode: single
 max_exceeded: silent
 trigger:
-- platform: event
-  event_type: esphome.button_pressed
-  event_data:
-    device_id: !input input_device
+  - platform: event
+    event_type: esphome.button_pressed
+    event_data:
+      device_id: !input input_device
 action:
-- variables:
-    command: "{{ trigger.event.data.command }}"
-- choose:
-  - conditions:
-    - "{{ command | string in button_1_short_press }}"
-    sequence:
-    - choose:
-      - conditions: []
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+  - choose:
+      - conditions:
+          - "{{ command | string in button_1_short_press }}"
         sequence: !input input_action_button_1_single_press
-  - conditions:
-    - "{{ command | string in button_2_short_press }}"
-    sequence:
-    - choose:
-      - conditions: []
+      - conditions:
+          - "{{ command | string in button_2_short_press }}"
         sequence: !input input_action_button_2_single_press
-  - conditions:
-    - "{{ command | string in button_3_short_press }}"
-    sequence:
-    - choose:
-      - conditions: []
+      - conditions:
+          - "{{ command | string in button_3_short_press }}"
         sequence: !input input_action_button_3_single_press
-  - conditions:
-    - "{{ command | string in button_4_short_press }}"
-    sequence:
-    - choose:
-      - conditions: []
+      - conditions:
+          - "{{ command | string in button_4_short_press }}"
         sequence: !input input_action_button_4_single_press
