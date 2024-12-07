@@ -7,11 +7,11 @@ blueprint:
       name: Esphome Device
       icon: mdi:devices
       input:
-    input_device:
-      name: Esphome Device
-      selector:
-        device:
-          integration: esphome
+        input_device:
+          name: Esphome Device
+          selector:
+            device:
+              integration: esphome
     section_bttn_1:
       name: Button 1
       icon: mdi:gesture-tap-button
