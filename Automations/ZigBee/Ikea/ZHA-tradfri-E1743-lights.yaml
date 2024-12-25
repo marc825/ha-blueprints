@@ -36,6 +36,15 @@ blueprint:
       default: []
       selector:
         action: {}
+variables:
+  on_button_short_press_command:
+  - 'on'
+  on_button_long_press_trigger_action:
+  - '[<MoveMode.Up: 0>, 83]'
+  off_button_short_press_command:
+  - 'toggle'
+  off_button_long_press_trigger_action:
+  - '[<MoveMode.Down: 1>, 83, <OptionsMask: 0>, <Options: 0>]'
 mode: restart
 trigger:
 - platform: event
@@ -45,10 +54,19 @@ trigger:
 action:
 - variables:
     command: "{{ trigger.event.data.command }}"
+    trigger_action: "{{ trigger.event.data.args }}"
 - choose:
+# On
   - conditions:
-    - "{{ command == 'up_open' }}"
-    sequence: !input "open_button_short_press"
+    - "{{ command | string in on_button_short_press_command }}"
+    sequence: !input "on_button_short_press"
+  - conditions: 
+    - "{{ trigger_action | string in on_button_long_press_trigger_action }}"
+    sequence: !input "on_button_long_press"
+## Off    
   - conditions:
-    - "{{ command == 'down_close' }}"
-    sequence: !input "close_button_short_press"
+    - "{{ command | string in off_button_short_press_command }}"
+    sequence: !input "off_button_short_press"
+  - conditions: 
+    - "{{ trigger_action | string in off_button_long_press_trigger_action }}"
+    sequence: !input "off_button_long_press"
