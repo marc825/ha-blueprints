@@ -1,0 +1,46 @@
+blueprint:
+  name: Own Blueprint GH - ZHA - TRADFRI E1743 on/off + dim up/dim down remote (Hook dim loop)
+  author: marc825
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: The remote that will control the shades
+      selector:
+        device:
+          integration: zha
+          manufacturer: IKEA of Sweden
+          model: TRADFRI on/off switch
+          multiple: false
+    input_helper_dim_stop:
+      name: Boolean for Loop
+      default: []
+      selector:
+        entity:
+          multiple: false
+          filter:
+            - domain: input_boolean
+variables:
+  dim_stop_command:
+  - 'stop_with_on_off'
+mode: restart
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input "remote"
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+- choose:
+  - conditions:
+    - "{{ command | string in dim_stop_command }}"
+    sequence:
+#    - event: ahb_controller_event
+#      event_data:
+#        controller: !input remote
+#        action: stop
+    - service: homeassistant.turn_on
+      data: {}
+      target:
+        entity_id: !input input_helper_dim_stop

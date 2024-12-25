@@ -1,48 +1,92 @@
 blueprint:
-  name: ZHA - TRADFRI E1743 on/off + dim up/dim down remote
+  name: Own Blueprint GH - ZHA - TRADFRI E1743 on/off + dim up/dim down remote Hook
   author: marc825
   domain: automation
   input:
-    remote:
-      name: Remote
-      description: The remote that will control the shades
-      selector:
-        device:
-          integration: zha
-          manufacturer: IKEA of Sweden
-          model: TRADFRI on/off switch
-          multiple: false
-    on_button_short_press:
-      name: On Button short press
-      description: Action to run on Short Press
-      default: []
-      selector:
-        action: {}
-    on_button_long_press:
-      name: On Button long press
-      description: Action to run on Short Press
-      default: []
-      selector:
-        action: {}
-    off_button_short_press:
-      name: Off Button short press
-      description: Action to run on Short Press
-      default: []
-      selector:
-        action: {}
-    off_button_long_press:
-      name: Off Button long press
-      description: Action to run on Short Press
-      default: []
-      selector:
-        action: {}
+    section_device:
+      name: "Gerät"
+      icon: "mdi:gesture-tap-button"
+      input:
+        remote:
+          name: Remote
+          description: The remote that will control the shades
+          selector:
+            device:
+              integration: zha
+              manufacturer: IKEA of Sweden
+              model: TRADFRI on/off switch
+              multiple: false
+    section_bttn_on:
+      name: "On Button"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for the on Button"
+      input:
+        on_button_short_press:
+          name: On Button short press
+          description: Action to run on on Button short Press.
+          default: []
+          selector:
+            action: {}
+        on_button_long_press:
+          name: On Button long press
+          description: Action to run on on Button long Press.
+          default: []
+          selector:
+            action: {}
+        on_button_loop_bool:
+          name: (Optional) On Button - loop until release
+          description: Loop the dim up action until the button is released.
+          default: false
+          selector:
+            boolean: {}
+    section_bttn_off:
+      name: "Off Button"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for the off Button"
+      input:
+        off_button_short_press:
+          name: Off Button short press
+          description: Action to run on off Button Short Press
+          default: []
+          selector:
+            action: {}
+        off_button_long_press:
+          name: Off Button long press
+          description: Action to run on off Button Short Press
+          default: []
+          selector:
+            action: {}
+        off_button_loop_bool:
+          name: (Optional) Off Button - loop until release
+          description: Loop the dim down action until the button is released.
+          default: false
+          selector:
+            boolean: {}
+    section_helper:
+      name: "Gerät"
+      icon: "mdi:gesture-tap-button"
+      input:
+        input_helper_dim_stop:
+          name: Boolean for Loop
+          default: []
+          selector:
+            entity:
+              multiple: false
+              filter:
+                - domain: input_boolean
 variables:
+  dim_up_loop: !input on_button_loop_bool
+  dim_down_loop: !input off_button_loop_bool
   on_button_short_press_command:
   - 'on'
+  on_button_long_press_command:
+  - 'move_with_on_off'
   on_button_long_press_trigger_action:
   - '[<MoveMode.Up: 0>, 83]'
   off_button_short_press_command:
   - 'off'
+  on_button_long_press_command:
+  - 'move'
   off_button_long_press_trigger_action:
   - '[<MoveMode.Down: 1>, 83, <OptionsMask: 0>, <Options: 0>]'
 mode: restart
@@ -62,7 +106,37 @@ action:
     sequence: !input "on_button_short_press"
   - conditions: 
     - "{{ trigger_action | string in on_button_long_press_trigger_action }}"
-    sequence: !input "on_button_long_press"
+    sequence:
+    - choose:
+      - conditions: "{{ on_button_loop_bool }}"
+        sequence:
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_helper_dim_stop
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 0
+            milliseconds: 100
+        - repeat:
+            sequence:
+            - choose:
+              - conditions: []
+                sequence: !input on_button_long_press
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 100
+            until:
+              - condition: state
+                entity_id: !input input_helper_dim_stop
+                state: "on"
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_helper_dim_stop
+          data: {}
 ## Off    
   - conditions:
     - "{{ command | string in off_button_short_press_command }}"
