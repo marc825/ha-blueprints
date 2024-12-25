@@ -1,5 +1,5 @@
 blueprint:
-  name: ZHA - TRADFRI E1766 open/close remote
+  name: ZHA - TRADFRI E1743 on/off + dim up/dim down remote
   author: marc825
   domain: automation
   input:
@@ -10,16 +10,28 @@ blueprint:
         device:
           integration: zha
           manufacturer: IKEA of Sweden
-          model: TRADFRI open/close remote
+          model: TRADFRI on/off remote
           multiple: false
-    open_button_short_press:
-      name: Open Button short press
+    on_button_short_press:
+      name: On Button short press
       description: Action to run on Short Press
       default: []
       selector:
         action: {}
-    close_button_short_press:
-      name: Close Button short press
+    on_button_long_press:
+      name: On Button long press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    off_button_short_press:
+      name: Off Button short press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    off_button_long_press:
+      name: Off Button long press
       description: Action to run on Short Press
       default: []
       selector:
