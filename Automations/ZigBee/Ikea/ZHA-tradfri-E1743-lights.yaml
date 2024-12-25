@@ -108,7 +108,7 @@ action:
     - "{{ trigger_action | string in on_button_long_press_trigger_action }}"
     sequence:
     - choose:
-      - conditions: "{{ on_button_loop_bool }}"
+      - conditions: "{{ dim_up_loop }}"
         sequence:
         - service: homeassistant.turn_off
           target:
@@ -137,10 +137,44 @@ action:
           target:
             entity_id: !input input_helper_dim_stop
           data: {}
+      - conditions: "{{ not dim_up_loop }}"
+        sequence: !input on_button_long_press
 ## Off    
   - conditions:
     - "{{ command | string in off_button_short_press_command }}"
     sequence: !input "off_button_short_press"
   - conditions: 
     - "{{ trigger_action | string in off_button_long_press_trigger_action }}"
-    sequence: !input "off_button_long_press"
+    sequence:
+    - choose:
+      - conditions: "{{ dim_down_loop }}"
+        sequence:
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_helper_dim_stop
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 0
+            milliseconds: 100
+        - repeat:
+            sequence:
+            - choose:
+              - conditions: []
+                sequence: !input off_button_long_press
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 100
+            until:
+              - condition: state
+                entity_id: !input input_helper_dim_stop
+                state: "on"
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_helper_dim_stop
+          data: {}
+      - conditions: "{{ not dim_down_loop }}"
+        sequence: !input off_button_long_press
