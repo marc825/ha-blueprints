@@ -101,15 +101,11 @@ trigger:
 condition:
 - condition: and
   conditions:
-  - '{%- set trigger_action -%} {{ trigger.event.data.command }}{{"_" if trigger.event.data.args|length
-    > 0}}{{ trigger.event.data.args|join("_") }} {%- endif -%} {%- endset -%} {{ trigger_action
-    != "" }}'
-  - '{{ integration_id != "zigbee2mqtt" or trigger.event.data.new_state.state != trigger.event.data.old_state.state
-    }}'
+  - '{%- set trigger_action -%} {{ trigger.event.data.command }}{{"_" if trigger.event.data.args|length > 0}}{{ trigger.event.data.args|join("_") }} {%- endif -%} {%- endset -%} {{ trigger_action != "" }}'
+  - '{{ integration_id != "zigbee2mqtt" or trigger.event.data.new_state.state != trigger.event.data.old_state.state }}'
 action:
 - variables:
-    trigger_action: '{{ trigger.event.data.command }}{{"_" if trigger.event.data.args|length
-      > 0}}{{ trigger.event.data.args|join("_") }} {%- endif -%}'
+    trigger_action: '{{ trigger.event.data.command }}{{"_" if trigger.event.data.args|length > 0}}{{ trigger.event.data.args|join("_") }} {%- endif -%}'
 - choose:
   - conditions: '{{ (trigger_action | string) in button_on_short }}'
     sequence:
