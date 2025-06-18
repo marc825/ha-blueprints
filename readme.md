@@ -57,7 +57,13 @@
     Einsatzzweck: 
       - Setzt einen Boolean, um Dimmen zu stoppen (z.B. bei Loslassen der Taste).
 
-### 3. Lidl FB20 002 (Silvercrest)
+### 3. Tradfri Remote 2 [E1524] 5 Button
+
+-  #### [Aktionen für jede Taste](Automations\ZigBee\Ikea\ZHA-ikea-E1810-E1524-5-button-remote.yaml)
+
+    Einsatzzweck: 
+      - Führt beliebige Aktionen für jede Taste (kurz/lang) aus, inkl. Loop für langes Drücken.
+### 4. Lidl FB20 002 (Silvercrest)
 
 -  #### [Aktionen für jede Taste](Automations/ZigBee/Lidl/ZHA-lidl-FB20-002-action.yaml)
 
@@ -69,7 +75,7 @@
     Einsatzzweck: 
       - Sendet eigene Events für jede Taste, um weitere Automatisierungen flexibel zu gestalten.
 
-### 4. Philips Hue Dimmer V2 (RWL022)
+### 5. Philips Hue Dimmer V2 (RWL022)
 
 -  #### [Dimmer Automatisierung](Automations/ZigBee/Philips/ZHA-hue-RWL022-dimmer.yaml)
 

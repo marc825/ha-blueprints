@@ -1,0 +1,105 @@
+blueprint:
+  name: Own Blueprint - ZHA - Tradfri Remote Light Group Controller
+  description: 'Control anything using IKEA SYMFONISK remote'
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: The remote 
+      selector:
+        device:
+          integration: zha
+          manufacturer: IKEA of Sweden
+          model: TRADFRI remote control
+          multiple: false
+    input_middle_button_short_press:
+      name: Middle Button Short press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    input_right_button_short_press:
+      name: Right Button Short press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    input_left_button_short_press:
+      name: Left Button Short press
+      description: Action to run on Short Press
+      default: []
+      selector:
+        action: {}
+    input_dim_up_short_press:
+      name: Dim Up Short press
+      default: []
+      selector:
+        action: {}
+    input_dim_up_long_press:
+      name: Dim Up long press
+      default: []
+      selector:
+        action: {}
+    input_dim_down_short_press:
+      name: Dim Down Short press
+      default: []
+      selector:
+        action: {}
+    input_dim_down_long_press:
+      name: Dim Down long press
+      default: []
+      selector:
+        action: {}
+variables:
+  toggle:
+  - 'toggle'
+  dim_up_short_press:
+  - '[<StepMode.Up: 0>, 43, 5]'
+  dim_up_long_press:
+  - '[<MoveMode.Up: 0>, 84]'
+  dim_down_short_press:
+  - '[<StepMode.Down: 1>, 43, 5, <bitmap8: 0>, <bitmap8: 0>]'
+  dim_down_long_press:
+  - '[<MoveMode.Down: 1>, 84, <bitmap8: 0>, <bitmap8: 0>]'
+  right_button_short_press:
+  - '[256, 13, 0]'
+  right_button_long_press:
+  - '[256, 13, 0]'
+  left_button_short_press:
+  - '[257, 13, 0]'
+  left_button_long_press:
+  - '[3329, 0]'
+
+mode: restart
+max_exceeded: silent
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input remote
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+    trigger_action: "{{ trigger.event.data.args }}"
+- choose:
+  - conditions:
+    - "{{ command | string in toggle }}"
+    sequence: !input input_middle_button_short_press
+  - conditions:
+    - '{{ trigger_action | string in dim_up_short_press }}'
+    sequence: !input input_dim_up_short_press
+  - conditions:
+    - '{{ trigger_action | string in dim_up_long_press }}'
+    sequence: !input "input_dim_up_long_press"
+  - conditions:
+    - '{{ trigger_action | string in dim_down_short_press }}'
+    sequence: !input "input_dim_down_short_press"
+  - conditions:
+    - '{{ trigger_action | string in dim_down_long_press }}'
+    sequence: !input "input_dim_down_long_press"
+  - conditions:
+    - "{{ trigger_action | string in right_button_short_press }}"
+    sequence: !input "input_right_button_short_press"
+  - conditions:
+    - "{{ trigger_action | string in left_button_short_press }}"
+    sequence: !input "input_left_button_short_press"
