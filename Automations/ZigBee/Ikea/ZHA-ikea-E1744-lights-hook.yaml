@@ -1,5 +1,5 @@
 blueprint:
-  name: Own Blueprint GH - ZHA - Light IKEA SYMFONISK remote Hook
+  name: Own Blueprint GH - ZHA - Light IKEA SYMFONISK remote - Hook
   description: 'Steuert einen Boolean an um einer Automatisierung mitzuteilen dass der Symfonisk Sound Controller nicht mehr gedreht wird
 
     '
