@@ -1,5 +1,5 @@
 blueprint:
-  name: Own Blueprint GH - ZHA - Controller Lidl FB20 002
+  name: Own Blueprint GH - ZHA - Controller Lidl FB20 002 - Hook
   description: 'Controller automation for executing any kind of action triggered by
     an Lidl FB20 002. Allows to optionally loop an action on a
     button long press.
