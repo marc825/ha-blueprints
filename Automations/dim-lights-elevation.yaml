@@ -5,75 +5,90 @@ blueprint:
     Assitant restart before the change take effect.
   domain: automation
   input:
-    input_number_command:
-      name: Command Output Text Helper
-      description: Output for Command events of Device
-      default: []
-      selector:
-        entity:
-          domain:
-          - input_number
-          multiple: false
-    max_brightness:
-      name: Maximum brightness percent
-      description: Brightness to set as the maximum brightness
-      default: 100
-      selector:
-        number:
-          min: 2.0
-          max: 100.0
-          unit_of_measurement: '%'
-          mode: slider
-          step: 1.0
-    min_brightness:
-      name: Minimum brightnes percent
-      description: Brightness to set as the minimum brightness
-      default: 1
-      selector:
-        number:
-          min: 1.0
-          max: 99.0
-          unit_of_measurement: '%'
-          mode: slider
-          step: 1.0
-    start_dim_up_rising:
-      name: Elevation of the sun to start brighten the light when the sun is rising
-      default: 0
-      selector:
-        number:
-          min: -35.0
-          max: 25.0
-          mode: slider
-          step: 0.5
-    max_brightness_elevation:
-      name: Elevation of the Sun at which max Brightness is applied
-      default: 45
-      selector:
-        number:
-          min: 30.0
-          max: 90.0
-          mode: slider
-          step: 0.5
-    end_dim_down_setting:
-      name: Elevation of the sun to start dim the light when the sun is setting
-      default: -10
-      selector:
-        number:
-          min: -35.0
-          max: 25.0
-          mode: slider
-          step: 0.5
-    debounce_update:
-      name: Debounce Brightness Update
-      description: Time (in seconds) to wait before updating the brightness again
-      default: 30
-      selector:
-        number:
-          min: 15
-          max: 300
-          unit_of_measurement: 's'
-          mode: slider
-          step: 15
+    section_general:
+      name: "General Settings"
+      icon: "mdi:lightbulb"
+      description: "Options for the general settings"
+      input:
+        input_number_command:
+          name: Command Output Text Helper
+          description: Output for Command events of Device
+          default: []
+          selector:
+            entity:
+              domain:
+              - input_number
+              multiple: false
+        debounce_update:
+          name: Debounce Brightness Update
+          description: Time (in seconds) to wait before updating the brightness again
+          default: 30
+          selector:
+            number:
+              min: 15
+              max: 300
+              unit_of_measurement: 's'
+              mode: slider
+              step: 15
+    section_brightness:
+      name: "Sun Brightness Settings"
+      icon: "mdi:brightness-5"
+      description: "Options for the sun brightness"
+      input:
+        max_brightness:
+          name: Maximum brightness percent
+          description: Brightness to set as the maximum brightness
+          default: 100
+          selector:
+            number:
+              min: 2.0
+              max: 100.0
+              unit_of_measurement: '%'
+              mode: slider
+              step: 1.0
+        min_brightness:
+          name: Minimum brightnes percent
+          description: Brightness to set as the minimum brightness
+          default: 1
+          selector:
+            number:
+              min: 1.0
+              max: 99.0
+              unit_of_measurement: '%'
+              mode: slider
+              step: 1.0
+    section_sun:
+      name: "Sun Elevation Settings"
+      icon: "mdi:sun-clock"
+      description: "Options for the sun elevation"
+      input:
+        start_dim_up_rising:
+          name: Elevation of the sun to start brighten the light when the sun is rising
+          default: 0
+          selector:
+            number:
+              min: -35.0
+              max: 25.0
+              mode: slider
+              step: 0.5
+        max_brightness_elevation:
+          name: Elevation of the Sun at which max Brightness is applied
+          default: 45
+          selector:
+            number:
+              min: 30.0
+              max: 90.0
+              mode: slider
+              step: 0.5
+        end_dim_down_setting:
+          name: Elevation of the sun to start dim the light when the sun is setting
+          default: -10
+          selector:
+            number:
+              min: -35.0
+              max: 25.0
+              mode: slider
+              step: 0.5
 mode: single
 max_exceeded: silent
 variables:
