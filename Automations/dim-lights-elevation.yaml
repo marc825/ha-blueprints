@@ -92,6 +92,7 @@ blueprint:
 mode: single
 max_exceeded: silent
 variables:
+  debounce_update: !input 'debounce_update'
   start_setting: !input 'max_brightness_elevation'
   start_rising: !input 'start_dim_up_rising'
   end_setting: !input 'end_dim_down_setting'
