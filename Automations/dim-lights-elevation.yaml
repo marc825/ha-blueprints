@@ -63,6 +63,19 @@ blueprint:
           max: 25.0
           mode: slider
           step: 0.5
+    debounce_update:
+      name: Debounce Brightness Update
+      description: Time (in seconds) to wait before updating the brightness again
+      default: 30
+      selector:
+        number:
+          min: 15
+          max: 300
+          unit_of_measurement: 's'
+          mode: slider
+          step: 15
+mode: single
+max_exceeded: silent
 variables:
   start_setting: !input 'max_brightness_elevation'
   start_rising: !input 'start_dim_up_rising'
@@ -96,9 +109,9 @@ trigger:
     service: turn_on
 - platform: homeassistant
   event: start
-mode: queued
 action:
 - service: input_number.set_value
   data:
     entity_id: !input input_number_command
     value: '{{ brightness }}'
+- delay: '{{ debounce_update }}'
