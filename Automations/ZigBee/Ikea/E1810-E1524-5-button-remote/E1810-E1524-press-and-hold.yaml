@@ -1,6 +1,6 @@
 blueprint:
-  name: Own Blueprint GH - ZHA - Tradfri Remote (E1810/E1524) simple press
-  description: 'Control anything using IKEA SYMFONISK remote (simple press)'
+  name: Own Blueprint GH - ZHA - Tradfri Remote (E1810/E1524) simple press + hold 
+  description: 'Control anything using IKEA SYMFONISK remote'
   domain: automation
   input:
     section_device:
