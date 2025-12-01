@@ -25,9 +25,7 @@ variables:
   - 'stop_with_on_off'
   dim_down_long_press:
   - 'stop'
-  right_button_stop_command:
-  - 'release'
-  left_button_stop_command:
+  right_left_button_stop_command:
   - 'release'
 
 mode: restart
@@ -42,7 +40,23 @@ action:
     command: "{{ trigger.event.data.command }}"
 - choose:
   - conditions:
-    - "{{ command | string in dim_stop_command }}"
+    - "{{ command | string in dim_up_stop_command }}"
+    sequence:
+    - service: homeassistant.turn_on
+      data: {}
+      target:
+        entity_id: !input input_helper_dim_stop
+
+  - conditions:
+    - "{{ command | string in dim_down_long_press }}"
+    sequence:
+    - service: homeassistant.turn_on
+      data: {}
+      target:
+        entity_id: !input input_helper_dim_stop
+
+  - conditions:
+    - "{{ command | string in right_left_button_stop_command }}"
     sequence:
     - service: homeassistant.turn_on
       data: {}
