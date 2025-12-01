@@ -58,9 +58,9 @@ variables:
   dim_up_long_press_trigger_action:
   - '[<MoveMode.Up: 0>, 84]'
   dim_down_short_press_trigger_action:
-  - '[<StepMode.Down: 1>, 43, 5, <bitmap8: 0>, <bitmap8: 0>]'
+  - '[<StepMode.Down: 1>, 43, 5, <OptionsMask: 0>, <Options: 0>]'
   dim_down_long_press_trigger_action:
-  - '[<MoveMode.Down: 1>, 84, <bitmap8: 0>, <bitmap8: 0>]'
+  - '[<MoveMode.Down: 1>, 84, <OptionsMask: 0>, <Options: 0>]'
   right_button_short_press_trigger_action:
   - '[256, 13, 0]'
   right_button_long_press_trigger_action:
