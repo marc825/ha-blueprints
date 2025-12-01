@@ -1,0 +1,226 @@
+blueprint:
+  name: Own Blueprint GH - ZHA - Tradfri Remote (E1810/E1524) simple press
+  description: 'Control anything using IKEA SYMFONISK remote (simple press)'
+  domain: automation
+  input:
+    section_device:
+      name: "Gerät"
+      icon: "mdi:gesture-tap-button"
+      input:
+        remote:
+          name: Remote
+          description: The remote 
+          selector:
+            device:
+              integration: zha
+              manufacturer: IKEA of Sweden
+              model: TRADFRI remote control
+              multiple: false
+    section_middle_button:
+      name: "Middle Button"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for the middle Button"
+      input:
+        input_middle_button_short_press:
+          name: Middle Button Short press
+          description: Action to run on Short Press
+          default: []
+          selector:
+            action: {}
+    section_dim_up_button:
+      name: "Dim Up Button"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for the Dim Up Button"
+      input:
+        input_dim_up_short_press:
+          name: Dim Up Short press
+          default: []
+          selector:
+            action: {}
+        input_dim_up_long_press:
+          name: Dim Up long press
+          default: []
+          selector:
+            action: {}
+        input_dim_up_loop_bool:
+          name: (Optional) Dim Up Button - loop until release
+          description: Loop the dim up action until the button is released.
+          default: false
+          selector:
+            boolean: {}
+    section_dim_down_button:
+      name: "Dim Down Button"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for the Dim Down Button"
+      input:
+        input_dim_down_short_press:
+          name: Dim Down Short press
+          default: []
+          selector:
+            action: {}
+        input_dim_down_long_press:
+          name: Dim Down long press
+          default: []
+          selector:
+            action: {}
+        input_dim_down_loop_bool:
+          name: (Optional) Dim Down Button - loop until release
+          description: Loop the dim down action until the button is released.
+          default: false
+          selector:
+            boolean: {}
+    section_right_button:
+      name: "Right Button"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for the right Button"
+      input:
+        input_right_button_short_press:
+          name: Right Button Short press
+          description: Action to run on Short Press
+          default: []
+          selector:
+            action: {}
+    section_left_button:
+      name: "Left Button"
+      icon: "mdi:gesture-tap-button"
+      description: "Options for the left Button"
+      input:
+        input_left_button_short_press:
+          name: Left Button Short press
+          description: Action to run on Short Press
+          default: []
+          selector:
+            action: {}
+    section_helper:
+      name: "Gerät"
+      icon: "mdi:gesture-tap-button"
+      input:
+        input_helper_dim_stop:
+          name: Boolean for Loop
+          default: []
+          selector:
+            entity:
+              multiple: false
+              filter:
+                - domain: input_boolean
+variables:
+  dim_up_loop: !input input_dim_up_loop_bool
+  dim_down_loop: !input input_dim_down_loop_bool
+  toggle_command:
+  - 'toggle'
+  dim_up_short_press_trigger_action:
+  - '[<StepMode.Up: 0>, 43, 5]'
+  dim_up_long_press_trigger_action:
+  - '[<MoveMode.Up: 0>, 84]'
+  dim_down_short_press_trigger_action:
+  - '[<StepMode.Down: 1>, 43, 5, <bitmap8: 0>, <bitmap8: 0>]'
+  dim_down_long_press_trigger_action:
+  - '[<MoveMode.Down: 1>, 84, <bitmap8: 0>, <bitmap8: 0>]'
+  right_button_short_press_trigger_action:
+  - '[256, 13, 0]'
+  right_button_long_press_trigger_action:
+  - '[256, 13, 0]'
+  left_button_short_press_trigger_action:
+  - '[257, 13, 0]'
+  left_button_long_press_trigger_action:
+  - '[3329, 0]'
+
+mode: restart
+max_exceeded: silent
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input remote
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+    trigger_action: "{{ trigger.event.data.args }}"
+- choose:
+  - conditions:
+    - "{{ command | string in toggle_command }}"
+    sequence: !input input_middle_button_short_press
+  - conditions:
+    - '{{ trigger_action | string in dim_up_short_press_trigger_action }}'
+    sequence: !input input_dim_up_short_press
+  - conditions:
+    - '{{ trigger_action | string in dim_down_short_press_trigger_action }}'
+    sequence: !input "input_dim_down_short_press"
+  - conditions:
+    - "{{ trigger_action | string in right_button_short_press_trigger_action }}"
+    sequence: !input "input_right_button_short_press"
+  - conditions:
+    - "{{ trigger_action | string in left_button_short_press_trigger_action }}"
+    sequence: !input "input_left_button_short_press"
+
+  - conditions:
+    - '{{ trigger_action | string in dim_up_long_press_trigger_action }}'
+    sequence:
+    - choose:
+      - conditions: "{{ dim_up_loop }}"
+        sequence:
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_helper_dim_stop
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 0
+            milliseconds: 100
+        - repeat:
+            sequence:
+            - choose:
+              - conditions: []
+                sequence: !input input_dim_up_long_press
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 100
+            until:
+              - condition: state
+                entity_id: !input input_helper_dim_stop
+                state: "on"
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_helper_dim_stop
+          data: {}
+      - conditions: "{{ not dim_up_loop }}"
+        sequence: !input input_dim_up_long_press
+
+  - conditions:
+    - '{{ trigger_action | string in dim_down_long_press_trigger_action }}'
+    sequence:
+    - choose:
+      - conditions: "{{ dim_down_loop }}"
+        sequence:
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_helper_dim_stop
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 0
+            milliseconds: 100
+        - repeat:
+            sequence:
+            - choose:
+              - conditions: []
+                sequence: !input input_dim_down_long_press
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: 100
+            until:
+              - condition: state
+                entity_id: !input input_helper_dim_stop
+                state: "on"
+        - service: homeassistant.turn_off
+          target:
+            entity_id: !input input_helper_dim_stop
+          data: {}
+      - conditions: "{{ not dim_down_loop }}"
+        sequence: !input input_dim_down_long_press

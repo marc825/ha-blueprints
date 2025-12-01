@@ -1,0 +1,50 @@
+blueprint:
+  name: Own Blueprint GH - ZHA - Tradfri Remote (E1810/E1524) simple press + hold (Hook dim loop)
+  description: 'Control anything using IKEA SYMFONISK remote'
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: The remote 
+      selector:
+        device:
+          integration: zha
+          manufacturer: IKEA of Sweden
+          model: TRADFRI remote control
+          multiple: false
+    input_helper_dim_stop:
+      name: Boolean for Loop
+      default: []
+      selector:
+        entity:
+          multiple: false
+          filter:
+            - domain: input_boolean
+variables:
+  dim_up_stop_command:
+  - 'stop_with_on_off'
+  dim_down_long_press:
+  - 'stop'
+  right_button_stop_command:
+  - 'release'
+  left_button_stop_command:
+  - 'release'
+
+mode: restart
+max_exceeded: silent
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input remote
+action:
+- variables:
+    command: "{{ trigger.event.data.command }}"
+- choose:
+  - conditions:
+    - "{{ command | string in dim_stop_command }}"
+    sequence:
+    - service: homeassistant.turn_on
+      data: {}
+      target:
+        entity_id: !input input_helper_dim_stop
