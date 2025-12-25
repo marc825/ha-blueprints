@@ -100,6 +100,8 @@ blueprint:
 mode: single
 max_exceeded: silent
 variables:
+  input_number_value: !input 'input_number_value'
+  input_number_value_pct: !input 'input_number_value_pct'
   debounce_update: !input 'debounce_update'
   start_setting: !input 'max_brightness_elevation'
   start_rising: !input 'start_dim_up_rising'
@@ -148,7 +150,7 @@ trigger:
 action:
 - choose:
   - conditions:
-    - "{{ has_value(input_number_value) }}"
+    - "{{ input_number_value }}"
     sequence:
       - service: input_number.set_value
         data:
@@ -156,7 +158,7 @@ action:
           value: '{{ brightness }}'
 - choose:
   - conditions:
-    - "{{ has_value(input_number_value_pct) }}"
+    - "{{ input_number_value_pct }}"
     sequence:
       - service: input_number.set_value
         data:
