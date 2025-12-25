@@ -148,8 +148,7 @@ trigger:
 action:
 - choose:
   - conditions:
-    - condition: template
-      value_template: "{{ input_number_value not in [none, '', []] }}"
+    - "{{ has_value(input_number_value) }}"
     sequence:
       - service: input_number.set_value
         data:
@@ -157,8 +156,7 @@ action:
           value: '{{ brightness }}'
 - choose:
   - conditions:
-    - condition: template
-      value_template: "{{ input_number_value_pct not in [none, '', []] }}"
+    - "{{ has_value(input_number_value_pct) }}"
     sequence:
       - service: input_number.set_value
         data:
