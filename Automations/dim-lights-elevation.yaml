@@ -162,4 +162,4 @@ action:
         data:
           entity_id: !input input_number_value_pct
           value: '{{ brightness_pct }}'
-  - delay: '{{ debounce_update }}'
+- delay: '{{ debounce_update }}'
