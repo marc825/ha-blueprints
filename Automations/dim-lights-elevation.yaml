@@ -10,8 +10,17 @@ blueprint:
       icon: "mdi:lightbulb"
       description: "Options for the general settings"
       input:
-        input_number_command:
-          name: Command Output Text Helper
+        input_number_value:
+          name: Command Output Number Helper
+          description: Output for Command events of Device
+          default: []
+          selector:
+            entity:
+              domain:
+              - input_number
+              multiple: false
+        input_number_value_pct:
+          name: Command Output Percentage Number Helper
           description: Output for Command events of Device
           default: []
           selector:
@@ -30,31 +39,30 @@ blueprint:
               unit_of_measurement: 's'
               mode: slider
               step: 15
+  
     section_brightness:
       name: "Sun Brightness Settings"
       icon: "mdi:brightness-5"
       description: "Options for the sun brightness"
       input:
         max_brightness:
-          name: Maximum brightness percent
-          description: Brightness to set as the maximum brightness
-          default: 100
+          name: Maximum brightness
+          description: Brightness to set as the maximum brightness (0-255)
+          default: 255
           selector:
             number:
               min: 2.0
-              max: 100.0
-              unit_of_measurement: '%'
+              max: 255.0
               mode: slider
               step: 1.0
         min_brightness:
-          name: Minimum brightnes percent
-          description: Brightness to set as the minimum brightness
+          name: Minimum brightness
+          description: Brightness to set as the minimum brightness (0-255)
           default: 1
           selector:
             number:
               min: 1.0
-              max: 99.0
-              unit_of_measurement: '%'
+              max: 254.0
               mode: slider
               step: 1.0
     section_sun:
@@ -98,22 +106,34 @@ variables:
   end_setting: !input 'end_dim_down_setting'
   end_rising: !input 'max_brightness_elevation'
   rising: '{{ state_attr(''sun.sun'', ''rising'') }}'
-  max_brightness_input: !input 'max_brightness'
-  max_brightness: '{{ max_brightness_input|float }}'
-  min_brightness_input: !input 'min_brightness'
-  min_brightness: '{{ min_brightness_input|float }}'
+  max_brightness: !input 'max_brightness'
+  min_brightness: !input 'min_brightness'
   max_elevation: '{% if rising %}{{end_rising|float}}{% else %}{{start_setting|float}}{%
     endif %}'
   min_elevation: '{% if rising %}{{start_rising|float}}{% else %}{{end_setting|float}}{%
     endif %}'
   elevation: '{{ state_attr(''sun.sun'', ''elevation'') }}'
-  brightness_range: '{{ max_brightness - min_brightness }}'
+  brightness_range: '{{ max_brightness|float - min_brightness|float }}'
   delta_to_min: '{{ elevation - min_elevation }}'
   elevation_range: '{{ max_elevation - min_elevation }}'
-  full_percent: '{% if delta_to_min / elevation_range < 0 %}0{% elif delta_to_min
-    / elevation_range > 1 %}1{% else %}{{delta_to_min / elevation_range}}{% endif %}'
-  brightness_pct: '{{ full_percent * brightness_range + min_brightness }}'
-  brightness: '{{ (brightness_pct * 2.54)|int }}'
+  full_percent: |-
+      {% if delta_to_min / elevation_range < 0 %}
+      0
+      {% elif delta_to_min / elevation_range > 1 %}
+      1
+      {% else %}
+      {{ delta_to_min / elevation_range }}
+      {% endif %}
+  brightness: >-
+    {% set value = (full_percent|float * brightness_range|float + min_brightness|float) | round(0) %}
+    {% if value < 1 %}
+    1
+    {% elif value > 255 %}
+    255
+    {% else %}
+    {{ value|int }}
+    {% endif %}
+  brightness_pct: '{{ (brightness / 2.55)|round(1) }}'
 trigger:
 - platform: state
   entity_id: sun.sun
@@ -126,8 +146,20 @@ trigger:
 - platform: homeassistant
   event: start
 action:
-- service: input_number.set_value
-  data:
-    entity_id: !input input_number_command
-    value: '{{ brightness }}'
-- delay: '{{ debounce_update }}'
+- choose:
+  - conditions:
+    - "{{ input_number_value }}"
+    sequence:
+      - service: input_number.set_value
+        data:
+          entity_id: !input input_number_value
+          value: '{{ brightness }}'
+- choose:
+  - conditions:
+    - "{{ input_number_value_pct }}"
+    sequence:
+      - service: input_number.set_value
+        data:
+          entity_id: !input input_number_value_pct
+          value: '{{ brightness_pct }}'
+  - delay: '{{ debounce_update }}'
